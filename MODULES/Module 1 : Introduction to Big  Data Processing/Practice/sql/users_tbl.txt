@@ -1,0 +1,13 @@
+CREATE TABLE users_tbl (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO users_tbl (name, email, password_hash) 
+VALUES 
+    ('Alice Johnson', 'alice@example.com', 'hashed_password_1'),
+    ('Bob Smith', 'bob@example.com', 'hashed_password_2'),
+    ('Charlie Brown', 'charlie@example.com', 'hashed_password_3');
