@@ -1,8 +1,0 @@
-fg-data-profiling
-SQLAlchemy
-SQLAlchemy-Utils
-psycopg2
-openpyxl
-nltk
-findspark
-pyspark
