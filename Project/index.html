@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ledger — Financial Document Intelligence</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --burgundy-deep: #4a1521;
+    --burgundy: #6b1d2f;
+    --taupe: #8c7a6b;
+    --cream: #f4f1ea;
+    --ivory: #faf9f6;
+    --ink: #2c2523;
+    --rule: rgba(74, 21, 33, 0.18);
+    --serif: 'Playfair Display', Georgia, serif;
+    --sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--ivory);
+    color: var(--ink);
+    font-family: var(--sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: var(--burgundy); }
+
+  ::selection { background: var(--burgundy); color: var(--ivory); }
+
+  /* ---------- Masthead ---------- */
+
+  .masthead {
+    border-bottom: 1px solid var(--rule);
+    padding: 2.75rem 3rem 1.5rem;
+    background:
+      repeating-linear-gradient(
+        to bottom,
+        transparent,
+        transparent 27px,
+        var(--rule) 27px,
+        var(--rule) 28px
+      );
+    background-position: 0 5.5rem;
+  }
+
+  .masthead-inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem 2rem;
+  }
+
+  .wordmark {
+    font-family: var(--serif);
+    font-weight: 700;
+    font-size: 2.6rem;
+    letter-spacing: 0.01em;
+    color: var(--burgundy-deep);
+    margin: 0;
+  }
+
+  .wordmark em {
+    font-style: italic;
+    color: var(--burgundy);
+  }
+
+  .masthead-meta {
+    text-align: right;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--taupe);
+    line-height: 1.6;
+  }
+
+  .masthead-tagline {
+    max-width: 1180px;
+    margin: 0.35rem auto 0;
+    font-size: 0.95rem;
+    color: var(--taupe);
+    font-style: italic;
+    font-family: var(--serif);
+  }
+
+  /* ---------- Layout ---------- */
+
+  .layout {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 2.5rem 3rem 4rem;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 3rem;
+    align-items: start;
+  }
+
+  @media (max-width: 880px) {
+    .layout { grid-template-columns: 1fr; padding: 2rem 1.25rem 3rem; }
+    .masthead { padding: 2rem 1.25rem 1.25rem; }
+    .wordmark { font-size: 2.1rem; }
+  }
+
+  /* ---------- Sidebar (upload / documents) ---------- */
+
+  .panel {
+    border: 1px solid var(--rule);
+    background: var(--ivory);
+  }
+
+  .panel + .panel { margin-top: 1.75rem; }
+
+  .panel-header {
+    padding: 1.1rem 1.4rem 0.9rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .eyebrow {
+    font-size: 0.68rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--burgundy);
+    font-weight: 600;
+    margin: 0 0 0.25rem;
+  }
+
+  .panel-title {
+    font-family: var(--serif);
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin: 0;
+  }
+
+  .panel-body { padding: 1.25rem 1.4rem 1.5rem; }
+
+  .dropzone {
+    border: 1px dashed var(--burgundy);
+    background: var(--cream);
+    padding: 1.75rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.25s ease, border-color 0.25s ease;
+  }
+
+  .dropzone:hover, .dropzone.dragover {
+    background: #efe9df;
+    border-color: var(--burgundy-deep);
+  }
+
+  .dropzone p {
+    margin: 0.35rem 0 0;
+    font-size: 0.85rem;
+    color: var(--taupe);
+  }
+
+  .dropzone .dz-icon {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    color: var(--burgundy);
+    font-style: italic;
+  }
+
+  #file-input { display: none; }
+
+  .file-list {
+    list-style: none;
+    margin: 1rem 0 0;
+    padding: 0;
+    font-size: 0.82rem;
+  }
+
+  .file-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--rule);
+    color: var(--ink);
+  }
+
+  .file-list li:last-child { border-bottom: none; }
+
+  .file-list .ext {
+    color: var(--taupe);
+    font-variant: small-caps;
+  }
+
+  .btn {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--burgundy);
+    background: var(--burgundy);
+    color: var(--ivory);
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+    margin-top: 1rem;
+  }
+
+  .btn:hover:not(:disabled) { background: var(--burgundy-deep); }
+
+  .btn.secondary {
+    background: transparent;
+    color: var(--burgundy);
+  }
+
+  .btn.secondary:hover:not(:disabled) { background: var(--cream); }
+
+  .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .status-line {
+    margin-top: 0.85rem;
+    font-size: 0.78rem;
+    color: var(--taupe);
+    line-height: 1.5;
+    min-height: 1rem;
+  }
+
+  .status-line.error { color: var(--burgundy); }
+
+  .session-tag {
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    color: var(--taupe);
+    padding: 1rem 1.4rem 1.25rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .session-tag code {
+    color: var(--ink);
+    font-family: var(--sans);
+  }
+
+  /* ---------- Chat / Q&A column ---------- */
+
+  .transcript-panel {
+    border: 1px solid var(--rule);
+    background: var(--ivory);
+    display: flex;
+    flex-direction: column;
+    min-height: 560px;
+  }
+
+  .transcript {
+    flex: 1;
+    padding: 2rem 2.5rem;
+    overflow-y: auto;
+  }
+
+  .empty-state {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--taupe);
+    padding: 3rem 1rem;
+  }
+
+  .empty-state .mark {
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.9rem;
+    color: var(--burgundy);
+    margin-bottom: 0.75rem;
+  }
+
+  .empty-state p {
+    max-width: 360px;
+    font-size: 0.92rem;
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .qa-entry { margin-bottom: 2.25rem; }
+
+  .qa-entry:last-child { margin-bottom: 0.5rem; }
+
+  .qa-label {
+    display: inline-block;
+    font-family: var(--serif);
+    font-style: italic;
+    font-size: 1.1rem;
+    color: var(--burgundy);
+    width: 1.4rem;
+  }
+
+  .qa-question {
+    font-family: var(--serif);
+    font-size: 1.18rem;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.45;
+    margin: 0 0 0.9rem;
+    padding-bottom: 1.1rem;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .qa-answer {
+    font-size: 0.98rem;
+    line-height: 1.75;
+    color: var(--ink);
+    white-space: pre-wrap;
+  }
+
+  .qa-answer.pending {
+    color: var(--taupe);
+    font-style: italic;
+  }
+
+  .qa-sources {
+    margin-top: 0.9rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+
+  .source-chip {
+    font-size: 0.68rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--burgundy);
+    border: 1px solid var(--rule);
+    padding: 0.2rem 0.55rem;
+  }
+
+  .composer {
+    border-top: 1px solid var(--rule);
+    padding: 1.25rem 2.5rem;
+    display: flex;
+    gap: 0.9rem;
+    align-items: center;
+  }
+
+  .composer input[type="text"] {
+    flex: 1;
+    border: none;
+    border-bottom: 1px solid var(--rule);
+    background: transparent;
+    font-family: var(--sans);
+    font-size: 0.98rem;
+    color: var(--ink);
+    padding: 0.6rem 0.1rem;
+    outline: none;
+    transition: border-color 0.2s ease;
+  }
+
+  .composer input[type="text"]:focus { border-color: var(--burgundy); }
+  .composer input[type="text"]::placeholder { color: var(--taupe); font-style: italic; }
+
+  .composer button {
+    font-family: var(--sans);
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: var(--burgundy);
+    color: var(--ivory);
+    border: 1px solid var(--burgundy);
+    padding: 0.7rem 1.35rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .composer button:hover:not(:disabled) { background: var(--burgundy-deep); }
+  .composer button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  @media (max-width: 880px) {
+    .transcript { padding: 1.5rem; }
+    .composer { padding: 1rem 1.5rem; }
+  }
+
+  footer {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 1.5rem 3rem 3rem;
+    font-size: 0.72rem;
+    color: var(--taupe);
+    border-top: 1px solid var(--rule);
+    letter-spacing: 0.02em;
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="masthead-inner">
+    <h1 class="wordmark">L<em>edger</em></h1>
+    <div class="masthead-meta">
+      Financial Document Intelligence<br>
+      Session <span id="session-short">—</span>
+    </div>
+  </div>
+  <p class="masthead-tagline">Read the filing once. Ask it anything, forever after.</p>
+</header>
+
+<main class="layout">
+
+  <!-- Sidebar: Upload & Documents -->
+  <aside>
+    <section class="panel">
+      <div class="panel-header">
+        <p class="eyebrow">Step One</p>
+        <h2 class="panel-title">Add source material</h2>
+      </div>
+      <div class="panel-body">
+        <div class="dropzone" id="dropzone">
+          <div class="dz-icon">＋</div>
+          <p><strong>Drop files</strong> or click to browse</p>
+          <p>PDF, PPTX, images, audio, or plain text</p>
+        </div>
+        <input type="file" id="file-input" multiple>
+        <ul class="file-list" id="file-list"></ul>
+        <button class="btn" id="process-btn" disabled>Process Files</button>
+        <div class="status-line" id="upload-status"></div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header">
+        <p class="eyebrow">Session</p>
+        <h2 class="panel-title">Working set</h2>
+      </div>
+      <div class="panel-body">
+        <div class="status-line" id="index-status">No documents indexed yet.</div>
+        <button class="btn secondary" id="clear-btn">Clear Session</button>
+      </div>
+      <div class="session-tag">
+        ID <code id="session-id-full">—</code>
+      </div>
+    </section>
+  </aside>
+
+  <!-- Main: Q&A transcript -->
+  <section class="transcript-panel">
+    <div class="transcript" id="transcript">
+      <div class="empty-state" id="empty-state">
+        <div class="mark">“Ask what the numbers mean.”</div>
+        <p>Upload a filing, deck, chart, or recording on the left, then pose
+        your first question below. Every answer is grounded in the material
+        you provided — nothing else.</p>
+      </div>
+    </div>
+    <form class="composer" id="composer">
+      <input type="text" id="query-input" placeholder="Ask a question about your documents…" autocomplete="off" disabled>
+      <button type="submit" id="ask-btn" disabled>Ask</button>
+    </form>
+  </section>
+
+</main>
+
+<footer>
+  Ledger — a private research instrument. Answers are generated from the
+  documents you upload for this session and may be incomplete or imprecise;
+  verify anything material.
+</footer>
+
+<script>
+(function () {
+  const API_BASE = ''; // same-origin: /api/*
+
+  const state = {
+    sessionId: localStorage.getItem('ledger_session_id') || null,
+    files: [],
+    indexed: false,
+    qaCount: 0,
+  };
+
+  const el = {
+    dropzone: document.getElementById('dropzone'),
+    fileInput: document.getElementById('file-input'),
+    fileList: document.getElementById('file-list'),
+    processBtn: document.getElementById('process-btn'),
+    uploadStatus: document.getElementById('upload-status'),
+    indexStatus: document.getElementById('index-status'),
+    clearBtn: document.getElementById('clear-btn'),
+    sessionShort: document.getElementById('session-short'),
+    sessionFull: document.getElementById('session-id-full'),
+    transcript: document.getElementById('transcript'),
+    emptyState: document.getElementById('empty-state'),
+    composer: document.getElementById('composer'),
+    queryInput: document.getElementById('query-input'),
+    askBtn: document.getElementById('ask-btn'),
+  };
+
+  function renderSession() {
+    if (state.sessionId) {
+      el.sessionShort.textContent = state.sessionId.slice(0, 8);
+      el.sessionFull.textContent = state.sessionId;
+    } else {
+      el.sessionShort.textContent = '—';
+      el.sessionFull.textContent = '—';
+    }
+  }
+  renderSession();
+
+  // ---- Upload UI ----------------------------------------------------
+
+  el.dropzone.addEventListener('click', () => el.fileInput.click());
+
+  ['dragenter', 'dragover'].forEach(evt =>
+    el.dropzone.addEventListener(evt, e => {
+      e.preventDefault();
+      el.dropzone.classList.add('dragover');
+    })
+  );
+  ['dragleave', 'drop'].forEach(evt =>
+    el.dropzone.addEventListener(evt, e => {
+      e.preventDefault();
+      el.dropzone.classList.remove('dragover');
+    })
+  );
+  el.dropzone.addEventListener('drop', e => {
+    addFiles(e.dataTransfer.files);
+  });
+  el.fileInput.addEventListener('change', e => {
+    addFiles(e.target.files);
+  });
+
+  function addFiles(fileListLike) {
+    for (const f of fileListLike) state.files.push(f);
+    renderFileList();
+  }
+
+  function renderFileList() {
+    el.fileList.innerHTML = '';
+    state.files.forEach((f, i) => {
+      const li = document.createElement('li');
+      const ext = (f.name.split('.').pop() || '').toUpperCase();
+      li.innerHTML = `<span>${escapeHtml(f.name)}</span><span class="ext">${ext}</span>`;
+      el.fileList.appendChild(li);
+    });
+    el.processBtn.disabled = state.files.length === 0;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  // ---- Process / upload ----------------------------------------------
+
+  el.processBtn.addEventListener('click', async () => {
+    if (state.files.length === 0) return;
+    el.processBtn.disabled = true;
+    el.uploadStatus.classList.remove('error');
+    el.uploadStatus.textContent = 'Reading and describing your documents…';
+
+    const formData = new FormData();
+    state.files.forEach(f => formData.append('files', f));
+    if (state.sessionId) formData.append('session_id', state.sessionId);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/upload`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) {
+        const errBody = await safeJson(res);
+        throw new Error(errBody?.detail || `Upload failed (${res.status})`);
+      }
+      const data = await res.json();
+      state.sessionId = data.session_id;
+      localStorage.setItem('ledger_session_id', state.sessionId);
+      renderSession();
+
+      state.indexed = true;
+      state.files = [];
+      renderFileList();
+      el.uploadStatus.textContent = `Indexed ${data.chunks_indexed} passages from ${data.files_processed} file(s).`;
+      el.indexStatus.textContent = `${data.chunks_indexed} passages ready to query.`;
+      el.queryInput.disabled = false;
+      el.askBtn.disabled = false;
+    } catch (err) {
+      el.uploadStatus.classList.add('error');
+      el.uploadStatus.textContent = err.message || 'Something went wrong while processing your files.';
+    } finally {
+      el.processBtn.disabled = state.files.length === 0;
+    }
+  });
+
+  // ---- Clear session ----------------------------------------------------
+
+  el.clearBtn.addEventListener('click', async () => {
+    if (!state.sessionId) return;
+    el.clearBtn.disabled = true;
+    try {
+      await fetch(`${API_BASE}/api/session/${state.sessionId}`, { method: 'DELETE' });
+    } catch (err) {
+      // best-effort; fall through to reset the UI regardless
+    }
+    localStorage.removeItem('ledger_session_id');
+    state.sessionId = null;
+    state.indexed = false;
+    renderSession();
+    el.indexStatus.textContent = 'No documents indexed yet.';
+    el.transcript.innerHTML = '';
+    el.transcript.appendChild(el.emptyState);
+    el.queryInput.disabled = true;
+    el.askBtn.disabled = true;
+    el.clearBtn.disabled = false;
+  });
+
+  // ---- Ask a question ----------------------------------------------------
+
+  el.composer.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const question = el.queryInput.value.trim();
+    if (!question || !state.sessionId) return;
+
+    el.queryInput.value = '';
+    el.queryInput.disabled = true;
+    el.askBtn.disabled = true;
+
+    if (el.emptyState.parentNode === el.transcript) {
+      el.transcript.removeChild(el.emptyState);
+    }
+
+    state.qaCount += 1;
+    const entry = document.createElement('div');
+    entry.className = 'qa-entry';
+    entry.innerHTML = `
+      <p class="qa-question"><span class="qa-label">Q.</span> ${escapeHtml(question)}</p>
+      <p class="qa-answer pending"><span class="qa-label">A.</span> Consulting the documents…</p>
+    `;
+    el.transcript.appendChild(entry);
+    el.transcript.scrollTop = el.transcript.scrollHeight;
+
+    try {
+      const res = await fetch(`${API_BASE}/api/query`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ session_id: state.sessionId, query: question, top_k: 5 }),
+      });
+      if (!res.ok) {
+        const errBody = await safeJson(res);
+        throw new Error(errBody?.detail || `Query failed (${res.status})`);
+      }
+      const data = await res.json();
+      const answerEl = entry.querySelector('.qa-answer');
+      answerEl.classList.remove('pending');
+      answerEl.innerHTML = `<span class="qa-label">A.</span> ${escapeHtml(data.answer)}`;
+
+      if (data.sources && data.sources.length) {
+        const chips = document.createElement('div');
+        chips.className = 'qa-sources';
+        const seen = new Set();
+        data.sources.forEach(s => {
+          if (!s.source || seen.has(s.source)) return;
+          seen.add(s.source);
+          const chip = document.createElement('span');
+          chip.className = 'source-chip';
+          chip.textContent = s.source;
+          chips.appendChild(chip);
+        });
+        entry.appendChild(chips);
+      }
+    } catch (err) {
+      const answerEl = entry.querySelector('.qa-answer');
+      answerEl.classList.remove('pending');
+      answerEl.innerHTML = `<span class="qa-label">A.</span> ${escapeHtml(err.message || 'Something went wrong answering that question.')}`;
+    } finally {
+      el.queryInput.disabled = false;
+      el.askBtn.disabled = false;
+      el.queryInput.focus();
+      el.transcript.scrollTop = el.transcript.scrollHeight;
+    }
+  });
+
+  async function safeJson(res) {
+    try { return await res.json(); } catch { return null; }
+  }
+
+  // If we already have a session from a previous visit, assume it may have
+  // indexed documents and let the visitor jump straight to asking.
+  if (state.sessionId) {
+    el.indexStatus.textContent = 'Resumed a previous session. Ask a question, or upload more files.';
+    el.queryInput.disabled = false;
+    el.askBtn.disabled = false;
+  }
+})();
+</script>
+
+</body>
+</html>
